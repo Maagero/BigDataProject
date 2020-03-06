@@ -2,6 +2,7 @@ from pyspark import SparkConf, SparkContext
 import math
 import datetime
 import base64
+import scipy.stats
 
 sparkConf = SparkConf().setAppName("Yelp").setMaster("local").setAll([('spark.executor.memory', '4g'),('spark.driver.memory','4g')])
 sc = SparkContext(conf = sparkConf)
@@ -38,6 +39,10 @@ last_review = datetime.datetime.fromtimestamp(int(float(review_rdd.map(lambda fi
 
 
 #f) ????
+numOfReviewsPerUser = review_rdd.map(lambda field: (field[1], 1)).reduceByKey(lambda id1, id2: id1+id2)
+charsInReviewsPerUser = review_rdd.map(lambda field: (field[1], len((base64.b64decode(field[3].encode('ascii')).decode('ascii'))))).reduceByKey(lambda id1, id2: id1 + id2)
+joined = numOfReviewsPerUser.join(charsInReviewsPerUser).collect()
+r = map(lambda x, y: scipy.stats.pearsonr(x, y), joined[0], joined[1])
 
 lines = [distinct_users, average_chars_per_review, top_reviewed, reviews_each_year, first_review, last_review]
 lines_rdd = sc.parallelize(lines)
