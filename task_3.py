@@ -17,7 +17,7 @@ businesses_rdd = csv_file_businesses.filter(lambda line: line!=headers).map(lamb
 businesses_rdd.cache()
 
 #a) Average businesse rating for cities
-avarage_city_rating = businesses_rdd.map(lambda fields: (fields[3], (int(fields[8]),1))).reduceByKey(lambda city1, city2: (city1[0] + city2[0], city1[1] + city2[1])).mapValues(lambda value: value[0]/value[1]).collect()
+avarage_city_rating = businesses_rdd.map(lambda fields: (fields[3], (float(fields[8]),1))).reduceByKey(lambda city1, city2: (city1[0] + city2[0], city1[1] + city2[1])).mapValues(lambda value: value[0]/value[1]).collect()
 
 #b) Top 10 categories
 top_categories = businesses_rdd.flatMap(lambda field: [(field,1) for field in field[10].split(', ')]).reduceByKey(lambda cat1, cat2: cat1 + cat2).sortBy(lambda field: field[1], False).take(10)

@@ -17,7 +17,6 @@ headers = csv_file_review.first()
 #Creating RDDs
 review_rdd = csv_file_review.filter(lambda line: line!=headers).map(lambda line: line.split('\t'))
 review_rdd.cache()
-
 #a) Distinct user
 distinct_users = review_rdd.map(lambda fields: fields[1]).distinct().count()
 
@@ -36,10 +35,14 @@ reviews_each_year = review_rdd.map(lambda field: (datetime.datetime.fromtimestam
 first_review = datetime.datetime.fromtimestamp(int(float(review_rdd.map(lambda field: float(field[4])).reduce(lambda num1,num2: num1 if num1<num2 else num2))))
 last_review = datetime.datetime.fromtimestamp(int(float(review_rdd.map(lambda field: float(field[4])).reduce(lambda num1,num2: num1 if num1>num2 else num2))))
 
+#f) Math
+#numOfReviewsPerUser = review_rdd.map(lambda field: (field[1], 1)).reduceByKey(lambda id1, id2: id1+id2)
+#charsInReviewsPerUser = review_rdd.map(lambda field: (field[1], len((base64.b64decode(field[3].encode('ascii')).decode('ascii'))))).reduceByKey(lambda id1, id2: id1 + id2)
+#joined = numOfReviewsPerUser.join(charsInReviewsPerUser).collect()
+#r = map(lambda x, y: scipy.stats.pearsonr(x, y), joined[0], joined[1])
 
-#f) ????
 
-lines = [distinct_users, average_chars_per_review, top_reviewed, reviews_each_year, first_review, last_review]
-lines_rdd = sc.parallelize(lines)
-lines_rdd.repartition(1).saveAsTextFile(folder_name + output_filename)
 
+#lines = [distinct_users, average_chars_per_review, top_reviewed, reviews_each_year, first_review, last_review]
+#lines_rdd = sc.parallelize(lines)
+#lines_rdd.repartition(1).saveAsTextFile(folder_name + output_filename)
