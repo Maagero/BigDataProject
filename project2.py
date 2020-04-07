@@ -55,7 +55,7 @@ def polarity(s_list):
         if not lexicon.get(s):
             continue
         score += int(lexicon.get(s))
-    return min(max(score,-1),1)
+    return score
 polarity_udf = udf(polarity, LongType())
 
 k = 10
